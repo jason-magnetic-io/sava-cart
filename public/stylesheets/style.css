@@ -31,3 +31,11 @@ a {
 .cart.page {
   padding: 25px 0;
 }
+
+.price {
+  font-size: larger;
+}
+
+.glyphicon {
+  font-size: smaller;
+}
