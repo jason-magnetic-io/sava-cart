@@ -49,7 +49,7 @@ if (productServiceAddr === undefined) {
 }
 console.log("productServiceAddr: " + productServiceAddr);
 
-const productServiceVersion = 1;
+const productServiceVersion = 2;
 console.log("productServiceVersion: " + productServiceVersion);
 
 const productServiceURL = productServiceAddr + '/products/' + locale;
