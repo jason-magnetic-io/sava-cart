@@ -3,13 +3,12 @@ FROM node:latest
 WORKDIR /nodejs-shopping-cart
 
 COPY bin/ bin/
-COPY data/ data/
+COPY data/products.json data/
 COPY models/ models/
 COPY public/ public/
 COPY routes/ routes/
 COPY views/ views/
 COPY LICENSE .
-COPy README.MD .
 COPY app.js .
 COPY package.json .
 
