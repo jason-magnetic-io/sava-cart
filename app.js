@@ -27,7 +27,7 @@ app.use(session({
   resave: false,
   saveUninitialized: true
 }))
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(index.BASE_PATH, express.static(path.join(__dirname, 'public')));
 
 // res.locals is an object passed to hbs engine
 app.use(function(req, res, next) {
@@ -35,7 +35,7 @@ app.use(function(req, res, next) {
     next();
 });
 
-app.use('/', index);
+app.use('/', index.router);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

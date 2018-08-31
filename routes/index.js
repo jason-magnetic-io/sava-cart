@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 
+console.log('--- index.js --');
+
 // get locale
 var locale = process.env.LOCALE;
 console.log("LOCALE: " + process.env.LOCALE);
@@ -43,9 +45,12 @@ console.log("PRODUCT_SERVICE_ADDR: " + process.env.PRODUCT_SERVICE_ADDR);
 var productServiceAddr = process.env.PRODUCT_SERVICE_ADDR;
 if (productServiceAddr === undefined) {
   // kubernetes
-  console.log("SAVA_PRODUCT_SERVICE_HOST: " + process.env.SAVA_PRODUCT_SERVICE_HOST);
-  console.log("SAVA_PRODUCT_SERVICE_PORT: " + process.env.SAVA_PRODUCT_SERVICE_PORT);
-  productServiceAddr = 'http://' + process.env.SAVA_PRODUCT_SERVICE_HOST + ':' + process.env.SAVA_PRODUCT_SERVICE_PORT;
+  var port = process.env.SAVA_PRODUCT_SERVICE_PORT;
+  if (port === undefined) {
+    port = 9070;
+  }
+
+  productServiceAddr = 'http://sava-product:' + port;
 }
 console.log("productServiceAddr: " + productServiceAddr);
 
@@ -72,13 +77,29 @@ const getProducts = async () => {
   }
 }
 
+// get base path
+var basePath = process.env.BASE_PATH;
+console.log("BASE_PATH: " + process.env.BASE_PATH);
+if (basePath === undefined) {
+  // use locale
+  basePath = '/' + locale;
+} else {
+  // remove any leading/trainling whitespace and trailing slashes
+  basePath = basePath.trim().replace(/\/+$/, '');
+}
+basePath = basePath + "/";
+console.log('basePath: ' + basePath);
+
+const BASE_PATH = basePath;
+
 const Cart = require('../models/cart');
 
 const title = 'Vamp Shopping Cart';
 
-router.get('/', async (req, res, next) => {
+router.get(BASE_PATH, async (req, res, next) => {
   res.render('index', 
-  { 
+  {
+    basePath: BASE_PATH,
     title: title,
     locale: locale.toLocaleUpperCase(),
     displayCurrency: displayCurrency,
@@ -88,7 +109,7 @@ router.get('/', async (req, res, next) => {
   );
 });
 
-router.get('/add/:id', async (req, res, next) => {
+router.get(BASE_PATH + 'add/:id', async (req, res, next) => {
   const products = await getProducts();
   const productId = req.params.id;
   const cart = new Cart(req.session.cart ? req.session.cart : {});
@@ -97,10 +118,10 @@ router.get('/add/:id', async (req, res, next) => {
   });
   cart.add(product[0], productId);
   req.session.cart = cart;
-  res.redirect('/');
+  res.redirect(BASE_PATH);
 });
 
-router.get('/cart', (req, res, next) => {
+router.get(BASE_PATH + 'cart', (req, res, next) => {
   if (!req.session.cart) {
     return res.render('cart', {
       products: null
@@ -108,6 +129,7 @@ router.get('/cart', (req, res, next) => {
   }
   const cart = new Cart(req.session.cart);
   res.render('cart', {
+    basePath: BASE_PATH,
     title: title,
     locale: locale.toLocaleUpperCase(),
     displayCurrency: displayCurrency,
@@ -117,12 +139,15 @@ router.get('/cart', (req, res, next) => {
   });
 });
 
-router.get('/remove/:id', (req, res, next) => {
+router.get(BASE_PATH + 'remove/:id', (req, res, next) => {
   const productId = req.params.id;
   const cart = new Cart(req.session.cart ? req.session.cart : {});
   cart.remove(productId);
   req.session.cart = cart;
-  res.redirect('/cart');
+  res.redirect(BASE_PATH + 'cart');
 });
 
-module.exports = router;
+module.exports = {
+  BASE_PATH,
+  router
+};
