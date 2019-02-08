@@ -13,6 +13,9 @@ locale = String(locale).toLowerCase();
 console.log('locale: ' + locale);
 
 // set currency and icon based on the locale
+let currency;
+let displayCurrency;
+let displayCurrencyIcon;
 switch (locale) {
   case 'en':
     currency = 'GBP';
@@ -30,12 +33,21 @@ switch (locale) {
     displayCurrencyIcon = 'glyphicon-eur';
 }
 
+// show ratings?
+var showRatings = process.env.SHOW_RATINGS;
+console.log('SHOW_RATINGS: ' + showRatings);
+if (showRatings === undefined) {
+  showRatings = true;
+}
+
 const applyLocaleAndRatings = (products, ratings) => {
-  products.forEach(function(obj) {
-    obj = Object.assign(obj, ratings.find(r => r.id === obj.id));
-    obj.currency = currency;
-    obj.displayCurrency = displayCurrency;
-    obj.displayCurrencyIcon = displayCurrencyIcon;
+  products.forEach((product) => {
+    if (showRatings) {
+      product = Object.assign(product, ratings.find(rating => rating.id === product.id));
+    }
+    product.currency = currency;
+    product.displayCurrency = displayCurrency;
+    product.displayCurrencyIcon = displayCurrencyIcon;
   });
 
   return products;
@@ -66,38 +78,35 @@ const productServiceRequestHeaders = {
 };
 console.log('productServiceRequestHeaders: ' + JSON.stringify(productServiceRequestHeaders));
 
-// rating service
-console.log('RATING_SERVICE_ADDR: ' + process.env.RATING_SERVICE_ADDR);
-var ratingServiceAddr = process.env.RATING_SERVICE_ADDR;
-if (ratingServiceAddr === undefined) {
+// ratings service
+console.log('RATINGS_SERVICE_ADDR: ' + process.env.RATINGS_SERVICE_ADDR);
+var ratingsServiceAddr = process.env.RATINGS_SERVICE_ADDR;
+if (ratingsServiceAddr === undefined) {
   // kubernetes
-  var port = process.env.SAVA_RATING_SERVICE_PORT;
+  var port = process.env.SAVA_RATINGS_SERVICE_PORT;
   if (port === undefined) {
-    port = 9070;
+    port = 9085;
   }
 
-  ratingServiceAddr = 'http://sava-product:' + port;
+  ratingsServiceAddr = 'http://sava-ratings:' + port;
 }
-console.log('ratingServiceAddr: ' + ratingServiceAddr);
+console.log('ratingsServiceAddr: ' + ratingsServiceAddr);
 
-const ratingServiceVersion = 2;
-console.log('ratingServiceVersion: ' + ratingServiceVersion);
+const ratingsServiceURL = ratingsServiceAddr + '/ratings/' + locale;
+console.log('ratingsServiceURL: ' + ratingsServiceURL);
 
-const ratingServiceURL = ratingServiceAddr + '/ratings/' + locale;
-console.log('ratingServiceURL: ' + ratingServiceURL);
-
-const ratingServiceRequestHeaders = {
-  Accept: 'application/vnd.sava.v' + ratingServiceVersion + '+json'
+const ratingsServiceRequestHeaders = {
+  Accept: 'application/json'
 };
-console.log('ratingServiceRequestHeaders: ' + JSON.stringify(ratingServiceRequestHeaders));
+console.log('ratingsServiceRequestHeaders: ' + JSON.stringify(ratingsServiceRequestHeaders));
 
 const fs = require('fs');
 const axios = require('axios');
 const getProducts = async () => {
   try {
-    const responseProd = await axios.get(productServiceURL, { headers: productServiceRequestHeaders });
-    const responseRate = await axios.get(ratingServiceURL, { headers: ratingServiceRequestHeaders });
-    applyLocaleAndRatings(responseProd.data, responseRate.data);
+    const prodServResponse = await axios.get(productServiceURL, { headers: productServiceRequestHeaders });
+    const rateServResponse = await axios.get(ratingsServiceURL, { headers: ratingsServiceRequestHeaders });
+    return applyLocaleAndRatings(prodServResponse.data, rateServResponse.data);
   } catch (err) {
     console.error(err);
     return applyLocaleAndRatings(
