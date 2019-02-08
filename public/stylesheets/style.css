@@ -13,6 +13,10 @@ a {
           border-radius: 0 !important;
 }
 
+h3 {
+  margin-top: unset;
+}
+
 .dropdown-menu .cart {
   min-width: 250px;
   padding: 15px 25px 0;
@@ -22,7 +26,7 @@ a {
   padding: 0 0 10px 0;
 }
 
-.dropdown-menu .cart .totalPrice{
+.dropdown-menu .cart .totalPrice {
   font-size: 120%;
   font-weight: bold;
   padding: 15px 0;
