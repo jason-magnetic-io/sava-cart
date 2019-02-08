@@ -14,19 +14,22 @@
       <div class="thumbnail">
         <div class="caption">
           <h3>{{ this.title }}</h3>
+          <p class="description">{{{this.description}}}</p>
           {{#if this.stars}}
-          <div id="stars{{this.id}}" style="display: inline-block;"></div><span>{{this.stars}}</span>
+          <div>
+            <div id="stars{{this.id}}" style="display: inline-block;padding-left: 0px;"></div>
+            {{#if this.reviews}}<p>{{this.reviews}}&nbsp;Reviews</p>{{/if}}
+          </div>
           <script>
             $(function () {
               $("#stars{{this.id}}").rateYo({
+                starWidth: "24px",
                 rating: {{ this.stars }},
               readOnly: true 
               });
             });
           </script>
           {{/if}}
-          {{#if this.reviews}}<p>({{this.reviews}}) Reviews</p>{{/if}}
-          <p class="description">{{{this.description}}}</p>
           <div class="clearfix">
             <div class="price pull-left"><i class="glyphicon {{ this.displayCurrencyIcon }}" aria-hidden="true"></i>{{
               this.price }} {{ this.displayCurrency }}</div>

@@ -1,9 +1,10 @@
-FROM node:latest
+FROM node:lts-alpine
 
 WORKDIR /nodejs-shopping-cart
 
 COPY bin/ bin/
 COPY data/products.json data/
+COPY data/ratings.json data/
 COPY models/ models/
 COPY public/ public/
 COPY routes/ routes/
