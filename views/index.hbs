@@ -2,25 +2,39 @@
 <p>Welcome to the {{title}}</p>
 
 {{# each products }}
-  <div class="row">
-  {{#if this.img}}  
-    <div class="col-sm-3">
-      <img src="{{ this.img }}" class="img-responsive img-rounded center-block">
-    </div>
-    <div class="col-sm-9">
-  {{else}}
+<div class="row">
+  {{#if this.img}}
+  <div class="col-sm-3">
+    <img src="{{ this.img }}" class="img-responsive img-rounded center-block">
+  </div>
+  <div class="col-sm-9">
+    {{else}}
     <div class="col-sm-12">
-  {{/if}}
+      {{/if}}
       <div class="thumbnail">
         <div class="caption">
           <h3>{{ this.title }}</h3>
-            <p class="description">{{{this.description}}}</p>
-            <div class="clearfix">
-            <div class="price pull-left"><i class="glyphicon {{ this.displayCurrencyIcon }}" aria-hidden="true"></i>{{ this.price }} {{ this.displayCurrency }}</div>
-              <a href="{{ ../basePath }}add/{{ this.id }}" class="btn btn-primary pull-right" role="button"><i class="fa fa-shopping-cart" aria-hidden="true"></i> Add to cart</a>
-            </div>
+          {{#if this.stars}}
+          <div id="stars{{this.id}}" style="display: inline-block;"></div><span>{{this.stars}}</span>
+          <script>
+            $(function () {
+              $("#stars{{this.id}}").rateYo({
+                rating: {{ this.stars }},
+              readOnly: true 
+              });
+            });
+          </script>
+          {{/if}}
+          {{#if this.reviews}}<p>({{this.reviews}}) Reviews</p>{{/if}}
+          <p class="description">{{{this.description}}}</p>
+          <div class="clearfix">
+            <div class="price pull-left"><i class="glyphicon {{ this.displayCurrencyIcon }}" aria-hidden="true"></i>{{
+              this.price }} {{ this.displayCurrency }}</div>
+            <a href="{{ ../basePath }}add/{{ this.id }}" class="btn btn-primary pull-right" role="button"><i class="fa fa-shopping-cart"
+                aria-hidden="true"></i> Add to cart</a>
+          </div>
         </div>
       </div>
     </div>
   </div>
-{{/each}}
+  {{/each}}
