@@ -12,6 +12,7 @@ COPY views/ views/
 COPY LICENSE .
 COPY app.js .
 COPY package.json .
+COPY package-lock.json .
 
 RUN npm install
 
