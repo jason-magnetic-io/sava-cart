@@ -34,11 +34,12 @@ switch (locale) {
 }
 
 // show ratings?
-var showRatings = process.env.SHOW_RATINGS;
-console.log('SHOW_RATINGS: ' + showRatings);
-if (showRatings === undefined) {
-  showRatings = true;
+console.log('SHOW_RATINGS: ' + process.env.SHOW_RATINGS);
+var showRatings = true;
+if (process.env.SHOW_RATINGS == 'false' || process.env.SHOW_RATINGS == 0) {
+  showRatings = false;
 }
+console.log('showRatings: ' + showRatings);
 
 const applyLocaleAndRatings = (products, ratings) => {
   products.forEach((product) => {
