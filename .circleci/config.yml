@@ -1,26 +1,67 @@
 version: 2.1
 defaults: &defaults
   docker:
-    - image: circleci/python:3.7.2
+    - image: circleci/python:3.7-node
 jobs:
-  build-image:
+  build-push-image:
     <<: *defaults
     steps:
       - checkout
       - setup_remote_docker:
-          docker_layer_caching:
+          docker_layer_caching: true
       - run:
-          name: Build Docker image
+          name: Build and push Docker image tagged with GH tag
+          command: |
+            if [ ! -z ${DOCKER_PUBLISH_IMAGE+x} ]; then
+              service=$CIRCLE_PROJECT_REPONAME
+              tag="${CIRCLE_TAG:1}"
+              docker build -t $DOCKER_ORG/$service:$tag .
+              docker login -u $DOCKER_USER -p $DOCKER_PASS
+              docker push $DOCKER_ORG/$service:$tag
+            fi
+  update-service-def:
+    <<: *defaults
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "<your-fingerprint>"
+      - run:
+          name: Clone vamp-kmt-examples
+          command: |
+            git clone https://github.com/$CIRCLE_PROJECT_USERNAME/vamp-kmt-examples.git
+      - run:
+          name: Update service def with new version
+          command: |
+            service=$CIRCLE_PROJECT_REPONAME
+            tag="${CIRCLE_TAG:1}"
+            service_def=vamp-kmt-examples/tutorial5/services/$service/$service.json
+            python3 vamp-kmt-examples/circleci/version-update/update_version.py -f $service_def -t $tag
+            cat $service_def
+      - run:
+          name: Push new version
           command: |
             tag="${CIRCLE_TAG:1}"
-            docker build -t $DOCKER_ORG/sava-cart:$tag .
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker push $DOCKER_ORG/sava-cart:$tag
+            cd vamp-kmt-examples
+            git config user.email "${GITHUB_EMAIL}"
+            echo "${CIRCLE_USERNAME}"
+            git config user.name "${CIRCLE_USERNAME}"
+            git add .
+            git commit -m "Added version ${tag}"
+            git push
 workflows:
   version: 2
   publish-version:
     jobs:
-      - build-image:
+      - build-push-image:
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /^v.*/
+      - update-service-def:
+          requires:
+          - build-push-image
           filters:
             branches:
               ignore: /.*/
