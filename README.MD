@@ -5,8 +5,6 @@ The store front provides a responsive web app consisting of a products page, a s
 
 The `sava-cart` service is used in the Vamp tutorials, starting with tutorial 5: [Smarter Releasing on Kubernetes](https://vamp.io/documentation/tutorials/smarter-releasing-on-kubernetes/)
 
-The `sava-cart` service tries to isolate users from realtime dependency failures by showing cached or stubbed data. For example, if the `sava-product` service is unavailable users can choose from a list of fruit (a throw back to the original project).
-
 ### Version 1.0
 
 **Depends on:**
@@ -42,3 +40,17 @@ Adds product star ratings.
 * `BASE_PATH`: (Default: `\<LOCALE>\`)
 * `SHOW_RATINGS`: toggles whether product ratings are show (Default: true)
 * `RATINGS_SERVICE_ADDR`: the address (hostname and port) of the ratings service. (Default: http://sava-ratings:9085)
+
+## Running Locally using Docker
+
+The minimal Docker command is:
+
+`docker run -dit -p 3000:3000 vampio/sava-cart:2.1.0`
+
+This exposes the latest version of the `sava-cart` service on http://127.0.0.1:3000/en/.
+
+**Note:** assuming `sava-product` service is not accessible at http://sava-product:9070, the cart shows a list of fruit (a throw back to the original project).
+
+To add the `sava-product` and `sava-ratings` dependencies, use the following Docker command:
+
+`docker run -dit -p 3000:3000 -e LOCALE=IE -e PRODUCT_SERVICE_ADDR=http://<addr> -e RATINGS_SERVICE_ADDR=http://<addr> vampio/sava-cart:2.1.0`
