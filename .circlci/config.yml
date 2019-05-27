@@ -28,6 +28,7 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints:
+            - "af:02:43:a3:6a:0d:a6:05:16:c9:3d:b7:dc:6c:d3:e7"
             - "62:c1:24:8f:af:ce:8c:b8:d7:97:72:34:46:b9:44:c2"
       - run:
           name: Push artifact to service-catalog
