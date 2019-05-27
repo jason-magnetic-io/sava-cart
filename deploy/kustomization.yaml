@@ -1,0 +1,17 @@
+## specify here the resource you want to include
+resources:
+- deployment.yaml
+
+## labels to add to all resources
+commonLabels:
+  app: sava-cart
+
+## image tag
+images:
+- name: vampio/sava-cart
+  newTag: latest
+  
+configMapGenerator:
+- name: sava-cart-configmap
+  behavior: create
+  env: configMap.env
