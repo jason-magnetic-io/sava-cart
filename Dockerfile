@@ -2,7 +2,7 @@ FROM node:lts-alpine
 
 WORKDIR /nodejs-shopping-cart
 
-COPY bin/ bin/
+COPY bin/www bin/
 COPY data/products.json data/
 COPY data/ratings.json data/
 COPY models/ models/
