@@ -1,14 +1,16 @@
 const express = require('express');
 const router = express.Router();
 
+console.log('--- index.js --');
+
 // get locale
 var locale = process.env.LOCALE;
-console.log("LOCALE: " + process.env.LOCALE);
+console.log('LOCALE: ' + process.env.LOCALE);
 if (locale === undefined) {
-  locale = 'en';
+  process.exit(1);
 }
 locale = String(locale).toLowerCase();
-console.log("locale: " + locale);
+console.log('locale: ' + locale);
 
 // set currency and icon based on the locale
 switch (locale) {
@@ -39,15 +41,18 @@ const applyLocale = (products) => {
 }
 
 // product service
-console.log("PRODUCT_SERVICE_ADDR: " + process.env.PRODUCT_SERVICE_ADDR);
+console.log('PRODUCT_SERVICE_ADDR: ' + process.env.PRODUCT_SERVICE_ADDR);
 var productServiceAddr = process.env.PRODUCT_SERVICE_ADDR;
 if (productServiceAddr === undefined) {
   // kubernetes
-  console.log("SAVA_PRODUCT_SERVICE_HOST: " + process.env.SAVA_PRODUCT_SERVICE_HOST);
-  console.log("SAVA_PRODUCT_SERVICE_PORT: " + process.env.SAVA_PRODUCT_SERVICE_PORT);
-  productServiceAddr = 'http://' + process.env.SAVA_PRODUCT_SERVICE_HOST + ':' + process.env.SAVA_PRODUCT_SERVICE_PORT;
+  var port = process.env.SAVA_PRODUCT_SERVICE_PORT;
+  if (port === undefined) {
+    port = 9070;
+  }
+
+  productServiceAddr = 'http://sava-product:' + port;
 }
-console.log("productServiceAddr: " + productServiceAddr);
+console.log('productServiceAddr: ' + productServiceAddr);
 
 const productServiceVersion = 1;
 console.log("productServiceVersion: " + productServiceVersion);
@@ -72,9 +77,13 @@ const getProducts = async () => {
   }
 }
 
-const Cart = require('../models/cart');
+// title
+var title = process.env.TITLE;
+if (title === undefined) {
+  title = 'Vamp Shopping Cart';
+}
 
-const title = 'Vamp Shopping Cart';
+const Cart = require('../models/cart');
 
 router.get('/', async (req, res, next) => {
   res.render('index', 
