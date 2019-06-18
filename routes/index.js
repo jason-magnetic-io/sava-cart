@@ -5,16 +5,46 @@ console.log('--- index.js --');
 
 // get locale
 var locale = process.env.LOCALE;
-console.log("LOCALE: " + process.env.LOCALE);
+console.log('LOCALE: ' + process.env.LOCALE);
 if (locale === undefined) {
-  locale = 'en';
+  process.exit(1);
 }
 locale = String(locale).toLowerCase();
-console.log("locale: " + locale);
+console.log('locale: ' + locale);
 
 // set currency and icon based on the locale
+let currency;
+let displayCurrency;
+let displayCurrencyIcon;
 switch (locale) {
-  case 'en':
+  case 'br':
+    currency = 'BRL';
+    displayCurrency = 'R$';
+    displayCurrencyIcon = '';
+    break;
+  case 'cl':
+    currency = 'CLP';
+    displayCurrency = '';
+    displayCurrencyIcon = 'glyphicon-usd';
+    break;
+  case 'in':
+    currency = 'INR';
+    displayCurrency = 'Rs.';
+    displayCurrencyLeft = true;
+    displayCurrencyIcon = '';
+    break;
+  case 'pe':
+      currency = 'PEN';
+      displayCurrency = 'S/';
+      displayCurrencyLeft = true;
+      displayCurrencyIcon = '';
+      break;
+  case 'se':
+    currency = 'SEK';
+    displayCurrency = 'kr';
+    displayCurrencyIcon = '';
+    break;
+  case 'uk':
     currency = 'GBP';
     displayCurrency = '';
     displayCurrencyIcon = 'glyphicon-gbp';
@@ -41,7 +71,7 @@ const applyLocale = (products) => {
 }
 
 // product service
-console.log("PRODUCT_SERVICE_ADDR: " + process.env.PRODUCT_SERVICE_ADDR);
+console.log('PRODUCT_SERVICE_ADDR: ' + process.env.PRODUCT_SERVICE_ADDR);
 var productServiceAddr = process.env.PRODUCT_SERVICE_ADDR;
 if (productServiceAddr === undefined) {
   // kubernetes
@@ -52,18 +82,18 @@ if (productServiceAddr === undefined) {
 
   productServiceAddr = 'http://sava-product:' + port;
 }
-console.log("productServiceAddr: " + productServiceAddr);
+console.log('productServiceAddr: ' + productServiceAddr);
 
 const productServiceVersion = 2;
-console.log("productServiceVersion: " + productServiceVersion);
+console.log('productServiceVersion: ' + productServiceVersion);
 
 const productServiceURL = productServiceAddr + '/products/' + locale;
-console.log("productServiceURL: " + productServiceURL);
+console.log('productServiceURL: ' + productServiceURL);
 
 const productServiceRequestHeaders = {
-  'Accept': 'application/vnd.sava.v' + productServiceVersion +'+json'
+  Accept: 'application/vnd.sava.v' + productServiceVersion + '+json'
 };
-console.log("productServiceRequestHeaders: " + JSON.stringify(productServiceRequestHeaders));
+console.log('productServiceRequestHeaders: ' + JSON.stringify(productServiceRequestHeaders));
 
 const fs = require('fs');
 const axios = require('axios');
@@ -73,13 +103,13 @@ const getProducts = async () => {
     return applyLocale(response.data);
   } catch (err) {
     console.error(err);
-    return applyLocale(JSON.parse(fs.readFileSync('./data/products.json', 'utf8')));
+    return applyLocale(JSON.parse({}));
   }
 }
 
 // get base path
 var basePath = process.env.BASE_PATH;
-console.log("BASE_PATH: " + process.env.BASE_PATH);
+console.log('BASE_PATH: ' + process.env.BASE_PATH);
 if (basePath === undefined) {
   // use locale
   basePath = '/' + locale;
@@ -87,15 +117,18 @@ if (basePath === undefined) {
   // remove any leading/trainling whitespace and trailing slashes
   basePath = basePath.trim().replace(/\/+$/, '');
 }
-basePath = basePath + "/";
+basePath = basePath + '/';
 console.log('basePath: ' + basePath);
 
 const BASE_PATH = basePath;
 
+// title
+var title = process.env.TITLE;
+if (title === undefined) {
+  title = 'Vamp Shopping Cart';
+}
+
 const Cart = require('../models/cart');
-
-const title = 'Vamp Shopping Cart';
-
 router.get(BASE_PATH, async (req, res, next) => {
   res.render('index', 
   {
