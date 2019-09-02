@@ -27,4 +27,12 @@ module.exports = function Cart(cart) {
         }
         return arr;
     };
+    
+    this.getItemIds = function() {
+        var arr = [];
+        for (var id in this.items) {
+            arr.push(id);
+        }
+        return arr;
+    };
 };

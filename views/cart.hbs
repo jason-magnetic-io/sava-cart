@@ -15,7 +15,7 @@
                     <i class="glyphicon {{ this.item.displayCurrencyIcon }}" aria-hidden="true"></i>{{ this.price }} {{ this.item.displayCurrency }}
                 </div>
                 <div class="col-xs-2 text-right">
-                    <a href="{{ ../basePath }}remove/{{this.item.id}}" class="btn btn-default"></i> Remove</a>
+                    <a href="{{ ../basePath }}remove/{{this.item.id}}" class="btn btn-default"> Remove</a>
                 </div>
             </li>
             {{/each}}
@@ -26,7 +26,7 @@
     </div>
     <hr>
     <div class="text-right">
-        <a href="#" type="button" class="btn btn-success">Checkout</a>
+        <a href="{{ ../basePath }}checkout" class="btn btn-success">Checkout</a>
     </div>
 {{ else }}
     Your shopping cart is empty.

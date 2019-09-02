@@ -103,7 +103,34 @@ const getProducts = async () => {
     return applyLocale(response.data);
   } catch (err) {
     console.error(err);
-    return applyLocale(JSON.parse({}));
+    return applyLocale(JSON.parse({})); 
+  }
+}
+
+// payment service
+console.log('PAYMENT_SERVICE_ADDR: ' + process.env.PAYMENT_SERVICE_ADDR);
+var paymentServiceAddr = process.env.PAYMENT_SERVICE_ADDR;
+if (paymentServiceAddr === undefined) {
+  // default to "sidecar"
+  paymentServiceAddr = 'http://127.0.0.1:9090';
+}
+console.log('paymentServiceAddr: ' + paymentServiceAddr);
+
+const paymentServiceURL = paymentServiceAddr + '/basket';
+console.log('paymentServiceURL: ' + paymentServiceURL);
+
+const paymentServiceRequestHeaders = {
+  'Content-type': 'application/json'
+};
+console.log('paymentServiceRequestHeaders: ' + JSON.stringify(paymentServiceRequestHeaders));
+
+const postBasket = async (basket) => {
+  try {
+    const response = await axios.post(paymentServiceURL, basket, { headers: paymentServiceRequestHeaders });
+    return response.data;
+  } catch (err) {
+    console.error(err);
+    return {'message': 'failed'}; 
   }
 }
 
@@ -178,6 +205,23 @@ router.get(BASE_PATH + 'remove/:id', (req, res, next) => {
   cart.remove(productId);
   req.session.cart = cart;
   res.redirect(BASE_PATH + 'cart');
+});
+
+router.get(BASE_PATH + 'cart/checkout', (req, res, next) => {
+  const cart = new Cart(req.session.cart ? req.session.cart : {});
+  const basket = {
+    locale: locale,
+    currency: currency,
+    itemsIds: cart.getItemIds(),
+    totalItems: cart.totalItems,
+    totalPrice: cart.totalPrice,
+    requestUserAgent: req.header('User-Agent')
+  };
+  console.log('basket: ' + JSON.stringify(basket));
+  postBasket(basket);
+
+  req.session.cart = {};
+  res.redirect(BASE_PATH);
 });
 
 module.exports = {
