@@ -1,28 +1,40 @@
-<h1>{{title}} ({{locale}})</h1>
-{{# if products }}
+<h1>{{ title }} ({{ locale }})</h1>
+{{#if products }}
     <div class="cart page">
         <ul class="list-group">
-            {{# each products }}
+            {{#each products }}
             <li class="list-group-item clearfix">
                 <div class="col-xs-5">
                     <strong>{{ this.item.title }}</strong><br/>
-                    <em>{{{this.item.description}}}</em>
+                    <em>{{{ this.item.description }}}</em>
                 </div>
                 <div class="col-xs-2 text-right">
                     <span class="badge">{{ this.quantity }}</span>
                 </div>
                 <div class="col-xs-3 text-right">
-                    <i class="glyphicon {{ this.item.displayCurrencyIcon }}" aria-hidden="true"></i>{{ this.price }} {{ this.item.displayCurrency }}
+                    {{#if this.displayCurrencyIcon }}
+                    <i class="glyphicon {{ this.item.displayCurrencyIcon }}" aria-hidden="true"></i>{{ formatNum locale this.price }}
+                    {{else if this.displayCurrencyLeft}}
+                    {{ this.displayCurrency }} {{ formatNum locale this.price }}
+                    {{else}}
+                    {{ formatNum locale this.price }} {{ this.displayCurrency }}
+                    {{/if}}
                 </div>
                 <div class="col-xs-2 text-right">
-                    <a href="{{ ../basePath }}remove/{{this.item.id}}" class="btn btn-default"></i> Remove</a>
+                    <a href="{{ ../basePath }}remove/{{ this.item.id }}" class="btn btn-default"></i> Remove</a>
                 </div>
             </li>
             {{/each}}
         </ul>
     </div>
     <div class="text-right">
-        <strong>Total: <i class="glyphicon {{ displayCurrencyIcon }}" aria-hidden="true"></i>{{ totalPrice }} {{ displayCurrency }}</strong>
+        {{#if this.displayCurrencyIcon}}
+        <strong>Total: <i class="glyphicon {{ displayCurrencyIcon }}" aria-hidden="true"></i>{{ formatNum locale totalPrice }}</strong>
+        {{else if this.displayCurrencyLeft}}
+        <strong>Total: {{ displayCurrency }} {{ formatNum locale totalPrice }}</strong>
+        {{else}}
+        <strong>Total: {{ formatNum locale totalPrice }} {{ displayCurrency }}</strong>
+        {{/if}}
     </div>
     <hr>
     <div class="text-right">

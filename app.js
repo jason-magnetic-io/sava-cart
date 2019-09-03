@@ -15,6 +15,25 @@ var app = express();
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 hbs.registerPartials(__dirname + '/views/partials');
+hbs.registerHelper('formatNum', function(locale, num) {
+  if (typeof num !== 'number' || isNaN(num)) {
+    return num;
+  }
+
+  switch (locale) {
+    case 'cl':
+      return num.toFixed().replace('.', ',').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+    case 'in':
+      return num.toFixed();
+    case 'ie':
+    case 'pe':
+    case 'uk':
+    case 'us':
+      return num.toFixed(2);
+    default:
+      return num.toFixed(2).replace('.', ',').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+  }
+});
 app.set('view engine', 'hbs');
 
 app.use(favicon(path.join(__dirname, 'public', 'favicon.png')));

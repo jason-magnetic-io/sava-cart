@@ -7,7 +7,7 @@ console.log('--- index.js --');
 var locale = process.env.LOCALE;
 console.log('LOCALE: ' + process.env.LOCALE);
 if (locale === undefined) {
-  locale = 'en';
+  process.exit(1);
 }
 locale = String(locale).toLowerCase();
 console.log('locale: ' + locale);
@@ -17,27 +17,47 @@ let currency;
 let displayCurrency;
 let displayCurrencyIcon;
 switch (locale) {
-  case 'en':
+  case 'br':
+    currency = 'BRL';
+    displayCurrency = 'R$';
+    break;
+  case 'cl':
+    currency = 'CLP';
+    displayCurrencyIcon = 'glyphicon-usd';
+    break;
+  case 'in':
+    currency = 'INR';
+    displayCurrency = 'Rs.';
+    displayCurrencyLeft = true;
+    break;
+  case 'pe':
+      currency = 'PEN';
+      displayCurrency = 'S/';
+      displayCurrencyLeft = true;
+      break;
+  case 'se':
+    currency = 'SEK';
+    displayCurrency = 'kr';
+    break;
+  case 'uk':
     currency = 'GBP';
-    displayCurrency = '';
     displayCurrencyIcon = 'glyphicon-gbp';
     break;
   case 'us':
     currency = 'USD';
-    displayCurrency = '';
     displayCurrencyIcon = 'glyphicon-usd';
     break;
   default:
     currency = 'EUR';
-    displayCurrency = '';
     displayCurrencyIcon = 'glyphicon-eur';
 }
 
 // show ratings?
 console.log('SHOW_RATINGS: ' + process.env.SHOW_RATINGS);
-var showRatings = true;
-if (process.env.SHOW_RATINGS == 'false' || process.env.SHOW_RATINGS == 0) {
-  showRatings = false;
+var showRatings = false;
+if (process.env.SHOW_RATINGS === 1 ||
+    (typeof process.env.SHOW_RATINGS === 'string' && process.env.SHOW_RATINGS.toLocaleLowerCase() === 'true')) {
+  showRatings = true;
 }
 console.log('showRatings: ' + showRatings);
 
@@ -80,40 +100,45 @@ const productServiceRequestHeaders = {
 console.log('productServiceRequestHeaders: ' + JSON.stringify(productServiceRequestHeaders));
 
 // ratings service
-console.log('RATINGS_SERVICE_ADDR: ' + process.env.RATINGS_SERVICE_ADDR);
-var ratingsServiceAddr = process.env.RATINGS_SERVICE_ADDR;
-if (ratingsServiceAddr === undefined) {
-  // kubernetes
-  var port = process.env.SAVA_RATINGS_SERVICE_PORT;
-  if (port === undefined) {
-    port = 9085;
+let ratingsServiceURL;
+let ratingsServiceRequestHeaders;
+if (showRatings) {
+  console.log('RATINGS_SERVICE_ADDR: ' + process.env.RATINGS_SERVICE_ADDR);
+  var ratingsServiceAddr = process.env.RATINGS_SERVICE_ADDR;
+  if (ratingsServiceAddr === undefined) {
+    // kubernetes
+    var port = process.env.SAVA_RATINGS_SERVICE_PORT;
+    if (port === undefined) {
+      port = 9080;
+    }
+
+    ratingsServiceAddr = 'http://sava-ratings:' + port;
   }
+  console.log('ratingsServiceAddr: ' + ratingsServiceAddr);
 
-  ratingsServiceAddr = 'http://sava-ratings:' + port;
+  ratingsServiceURL = ratingsServiceAddr + '/ratings/' + locale;
+  console.log('ratingsServiceURL: ' + ratingsServiceURL);
+
+  ratingsServiceRequestHeaders = {
+    Accept: 'application/json'
+  };
+  console.log('ratingsServiceRequestHeaders: ' + JSON.stringify(ratingsServiceRequestHeaders));
 }
-console.log('ratingsServiceAddr: ' + ratingsServiceAddr);
-
-const ratingsServiceURL = ratingsServiceAddr + '/ratings/' + locale;
-console.log('ratingsServiceURL: ' + ratingsServiceURL);
-
-const ratingsServiceRequestHeaders = {
-  Accept: 'application/json'
-};
-console.log('ratingsServiceRequestHeaders: ' + JSON.stringify(ratingsServiceRequestHeaders));
 
 const fs = require('fs');
 const axios = require('axios');
 const getProducts = async () => {
   try {
     const prodServResponse = await axios.get(productServiceURL, { headers: productServiceRequestHeaders });
-    const rateServResponse = await axios.get(ratingsServiceURL, { headers: ratingsServiceRequestHeaders });
-    return applyLocaleAndRatings(prodServResponse.data, rateServResponse.data);
+    if (showRatings) {
+      const rateServResponse = await axios.get(ratingsServiceURL, { headers: ratingsServiceRequestHeaders });
+      return applyLocaleAndRatings(prodServResponse.data, rateServResponse.data);
+    } else {
+      return applyLocaleAndRatings(prodServResponse.data, {});
+    }
   } catch (err) {
     console.error(err);
-    return applyLocaleAndRatings(
-      JSON.parse(fs.readFileSync('./data/products.json', 'utf8')),
-      JSON.parse(fs.readFileSync('./data/ratings.json', 'utf8'))
-    );
+    return applyLocaleAndRatings({}, {});
   }
 };
 
@@ -132,9 +157,13 @@ console.log('basePath: ' + basePath);
 
 const BASE_PATH = basePath;
 
-const Cart = require('../models/cart');
+// title
+var title = process.env.TITLE;
+if (title === undefined) {
+  title = 'Vamp Shopping Cart';
+}
 
-const title = 'Vamp Shopping Cart';
+const Cart = require('../models/cart');
 
 router.get(BASE_PATH, async (req, res, next) => {
   res.render('index', {
@@ -152,7 +181,7 @@ router.get(BASE_PATH + 'add/:id', async (req, res, next) => {
   const productId = req.params.id;
   const cart = new Cart(req.session.cart ? req.session.cart : {});
   const product = products.filter(item => {
-    return item.id == productId;
+    return item.id === productId;
   });
   cart.add(product[0], productId);
   req.session.cart = cart;
