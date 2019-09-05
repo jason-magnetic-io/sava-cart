@@ -224,6 +224,11 @@ router.get(BASE_PATH + 'cart/checkout', (req, res, next) => {
   res.redirect(BASE_PATH);
 });
 
+router.post(BASE_PATH + 'mobile', (req, res, next) => {
+  console.log('/mobile: ' + JSON.stringify(req.body));
+  res.json(postBasket(req.body));
+});
+
 module.exports = {
   BASE_PATH,
   router
