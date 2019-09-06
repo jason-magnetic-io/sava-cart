@@ -134,6 +134,22 @@ const postBasket = async (basket) => {
   }
 }
 
+// voucher
+var vouchers = process.env.VOUCHERS;
+console.log('VOUCHERS: ' + process.env.VOUCHERS);
+if (vouchers) {
+  vouchers = JSON.parse(vouchers);
+}
+console.log('vouchers: ' + vouchers);
+
+const uaParser = require('ua-parser-js');
+const getVoucher = (ua) => {
+  console.log('user-agent: ' + ua);
+  var result = uaParser(ua);
+  console.log('result: ' + JSON.stringify(result));
+  return null;
+}
+
 // get base path
 var basePath = process.env.BASE_PATH;
 console.log('BASE_PATH: ' + process.env.BASE_PATH);
@@ -173,6 +189,18 @@ router.get(BASE_PATH + 'add/:id', async (req, res, next) => {
   const products = await getProducts();
   const productId = req.params.id;
   const cart = new Cart(req.session.cart ? req.session.cart : {});
+  
+  // voucher
+  if (cart.totalItems == 0) {
+    var voucher = getVoucher(req.header('User-Agent'));
+    if (voucher) {
+      const product = products.filter((item) => {
+        return item.id == voucher;
+      });
+      cart.add(product[0], voucher);
+    }
+  }
+  
   const product = products.filter((item) => {
     return item.id == productId;
   });
@@ -203,6 +231,15 @@ router.get(BASE_PATH + 'remove/:id', (req, res, next) => {
   const productId = req.params.id;
   const cart = new Cart(req.session.cart ? req.session.cart : {});
   cart.remove(productId);
+
+  // voucher
+  if (cart.totalItems == 1) {
+    var voucher = getVoucher(req.header('User-Agent'));
+    if (voucher) {
+      cart.remove(voucher);
+    }
+  }
+  
   req.session.cart = cart;
   res.redirect(BASE_PATH + 'cart');
 });
