@@ -1,8 +1,10 @@
 {
-  "name": "nodejs-shopping-cart",
+  "name": "sava-cart",
   "version": "2.0.7",
-  "author": "George Tsopouridis",
-  "email": "gtsopour@gmail.com",
+  "author": "Jason Griffin <jason@vamp.io>",
+  "contributors": [
+    "George Tsopouridis <gtsopour@gmail.com>"
+  ],
   "private": false,
   "scripts": {
     "start": "node ./bin/www"
