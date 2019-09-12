@@ -1,9 +1,8 @@
-FROM node:latest
+FROM node:lts-alpine
 
 WORKDIR /nodejs-shopping-cart
 
 COPY bin/ bin/
-COPY data/products.json data/
 COPY models/ models/
 COPY public/ public/
 COPY routes/ routes/
@@ -12,7 +11,7 @@ COPY LICENSE .
 COPY app.js .
 COPY package.json .
 
-RUN npm install
+RUN npm install --production
 
 EXPOSE 3000
 ENTRYPOINT ["/usr/local/bin/npm", "start"]

@@ -134,20 +134,17 @@ const postBasket = async (basket) => {
   }
 }
 
-// voucher
-var vouchers = process.env.VOUCHERS;
-console.log('VOUCHERS: ' + process.env.VOUCHERS);
-if (vouchers) {
-  vouchers = JSON.parse(vouchers);
-}
-console.log('vouchers: ' + vouchers);
-
+// UA based device type lookup
 const uaParser = require('ua-parser-js');
-const getVoucher = (ua) => {
+const getDeviceType = (ua) => {
   console.log('user-agent: ' + ua);
   var result = uaParser(ua);
-  console.log('result: ' + JSON.stringify(result));
-  return null;
+  if (typeof result !== 'undefined' && Object.keys(result).length > 0) {
+    if (typeof result.device.type !== 'undefined') {
+      return result.device.type;
+    }
+  }
+  return null;  
 }
 
 // get base path
@@ -189,18 +186,6 @@ router.get(BASE_PATH + 'add/:id', async (req, res, next) => {
   const products = await getProducts();
   const productId = req.params.id;
   const cart = new Cart(req.session.cart ? req.session.cart : {});
-  
-  // voucher
-  if (cart.totalItems == 0) {
-    var voucher = getVoucher(req.header('User-Agent'));
-    if (voucher) {
-      const product = products.filter((item) => {
-        return item.id == voucher;
-      });
-      cart.add(product[0], voucher);
-    }
-  }
-  
   const product = products.filter((item) => {
     return item.id == productId;
   });
@@ -231,28 +216,21 @@ router.get(BASE_PATH + 'remove/:id', (req, res, next) => {
   const productId = req.params.id;
   const cart = new Cart(req.session.cart ? req.session.cart : {});
   cart.remove(productId);
-
-  // voucher
-  if (cart.totalItems == 1) {
-    var voucher = getVoucher(req.header('User-Agent'));
-    if (voucher) {
-      cart.remove(voucher);
-    }
-  }
-  
   req.session.cart = cart;
   res.redirect(BASE_PATH + 'cart');
 });
 
 router.get(BASE_PATH + 'cart/checkout', (req, res, next) => {
+  const ua = req.header('User-Agent');
   const cart = new Cart(req.session.cart ? req.session.cart : {});
   const basket = {
     locale: locale,
     currency: currency,
-    itemsIds: cart.getItemIds(),
+    itemIds: cart.getItemIds(),
     totalItems: cart.totalItems,
     totalPrice: cart.totalPrice,
-    requestUserAgent: req.header('User-Agent')
+    requestUserAgent: ua,
+    deviceType: getDeviceType(ua)
   };
   console.log('basket: ' + JSON.stringify(basket));
   postBasket(basket);
@@ -263,7 +241,14 @@ router.get(BASE_PATH + 'cart/checkout', (req, res, next) => {
 
 router.post(BASE_PATH + 'mobile', (req, res, next) => {
   console.log('/mobile: ' + JSON.stringify(req.body));
-  res.json(postBasket(req.body));
+  var basket = req.body;
+  if (typeof basket.requestUserAgent !== 'undefined') {
+    var deviceType = getDeviceType(basket.requestUserAgent);
+    if (deviceType) {
+      basket['deviceType'] = deviceType;
+    }
+  }
+  res.json(postBasket(basket));
 });
 
 module.exports = {

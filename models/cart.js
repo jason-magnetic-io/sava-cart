@@ -31,7 +31,7 @@ module.exports = function Cart(cart) {
     this.getItemIds = function() {
         var arr = [];
         for (var id in this.items) {
-            arr.push(id);
+            arr.push(parseInt(id));
         }
         return arr;
     };
