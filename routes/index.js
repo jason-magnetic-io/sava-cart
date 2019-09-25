@@ -150,6 +150,46 @@ const getProducts = async () => {
   }
 };
 
+// payment service
+console.log('PAYMENT_SERVICE_ADDR: ' + process.env.PAYMENT_SERVICE_ADDR);
+var paymentServiceAddr = process.env.PAYMENT_SERVICE_ADDR;
+if (paymentServiceAddr === undefined) {
+  // default to "sidecar"
+  paymentServiceAddr = 'http://127.0.0.1:9090';
+}
+console.log('paymentServiceAddr: ' + paymentServiceAddr);
+
+const paymentServiceURL = paymentServiceAddr + '/basket';
+console.log('paymentServiceURL: ' + paymentServiceURL);
+
+const paymentServiceRequestHeaders = {
+  'Content-type': 'application/json'
+};
+console.log('paymentServiceRequestHeaders: ' + JSON.stringify(paymentServiceRequestHeaders));
+
+const postBasket = async (basket) => {
+  try {
+    const response = await axios.post(paymentServiceURL, basket, { headers: paymentServiceRequestHeaders });
+    return response.data;
+  } catch (err) {
+    console.error(err);
+    return {'message': 'failed'}; 
+  }
+}
+
+// UA based device type lookup
+const uaParser = require('ua-parser-js');
+const getDeviceType = (ua) => {
+  console.log('user-agent: ' + ua);
+  var result = uaParser(ua);
+  if (typeof result !== 'undefined' && Object.keys(result).length > 0) {
+    if (typeof result.device.type !== 'undefined') {
+      return result.device.type;
+    }
+  }
+  return null;  
+}
+
 // get base path
 var basePath = process.env.BASE_PATH;
 console.log('BASE_PATH: ' + process.env.BASE_PATH);
