@@ -226,11 +226,14 @@ router.get(BASE_PATH, async (req, res, next) => {
 
 router.get(BASE_PATH + 'add/:id', async (req, res, next) => {
   const products = await getProducts();
+  console.log(products);
   const productId = req.params.id;
   const cart = new Cart(req.session.cart ? req.session.cart : {});
   const product = products.filter(item => {
-    return item.id === productId;
+    console.log('item.id: ' + item.id + '; productId: ' + productId);
+    return item.id == productId;
   });
+  console.log(product);
   cart.add(product[0], productId);
   req.session.cart = cart;
   res.redirect(BASE_PATH);
@@ -260,6 +263,37 @@ router.get(BASE_PATH + 'remove/:id', (req, res, next) => {
   cart.remove(productId);
   req.session.cart = cart;
   res.redirect(BASE_PATH + 'cart');
+});
+
+router.get(BASE_PATH + 'cart/checkout', (req, res, next) => {
+  const ua = req.header('User-Agent');
+  const cart = new Cart(req.session.cart ? req.session.cart : {});
+  const basket = {
+    locale: locale,
+    currency: currency,
+    itemIds: cart.getItemIds(),
+    totalItems: cart.totalItems,
+    totalPrice: cart.totalPrice,
+    requestUserAgent: ua,
+    deviceType: getDeviceType(ua)
+  };
+  console.log('basket: ' + JSON.stringify(basket));
+  postBasket(basket);
+
+  req.session.cart = {};
+  res.redirect(BASE_PATH);
+});
+
+router.post(BASE_PATH + 'mobile', (req, res, next) => {
+  console.log('/mobile: ' + JSON.stringify(req.body));
+  var basket = req.body;
+  if (typeof basket.requestUserAgent !== 'undefined') {
+    var deviceType = getDeviceType(basket.requestUserAgent);
+    if (deviceType) {
+      basket['deviceType'] = deviceType;
+    }
+  }
+  res.json(postBasket(basket));
 });
 
 module.exports = {
