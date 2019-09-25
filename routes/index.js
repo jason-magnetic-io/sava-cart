@@ -225,14 +225,11 @@ router.get(BASE_PATH, async (req, res, next) => {
 
 router.get(BASE_PATH + 'add/:id', async (req, res, next) => {
   const products = await getProducts();
-  console.log(products);
   const productId = req.params.id;
   const cart = new Cart(req.session.cart ? req.session.cart : {});
   const product = products.filter(item => {
-    console.log('item.id: ' + item.id + '; productId: ' + productId);
     return item.id == productId;
   });
-  console.log(product);
   cart.add(product[0], productId);
   req.session.cart = cart;
   res.redirect(BASE_PATH);
