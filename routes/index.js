@@ -20,35 +20,43 @@ switch (locale) {
   case 'br':
     currency = 'BRL';
     displayCurrency = 'R$';
+    displayCurrencyIcon = '';
     break;
   case 'cl':
     currency = 'CLP';
+    displayCurrency = '';
     displayCurrencyIcon = 'glyphicon-usd';
     break;
   case 'in':
     currency = 'INR';
     displayCurrency = 'Rs.';
     displayCurrencyLeft = true;
+    displayCurrencyIcon = '';
     break;
   case 'pe':
       currency = 'PEN';
       displayCurrency = 'S/';
       displayCurrencyLeft = true;
+      displayCurrencyIcon = '';
       break;
   case 'se':
     currency = 'SEK';
     displayCurrency = 'kr';
+    displayCurrencyIcon = '';
     break;
   case 'uk':
     currency = 'GBP';
+    displayCurrency = '';
     displayCurrencyIcon = 'glyphicon-gbp';
     break;
   case 'us':
     currency = 'USD';
+    displayCurrency = '';
     displayCurrencyIcon = 'glyphicon-usd';
     break;
   default:
     currency = 'EUR';
+    displayCurrency = '';
     displayCurrencyIcon = 'glyphicon-eur';
 }
 
