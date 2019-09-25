@@ -133,7 +133,6 @@ if (showRatings) {
   console.log('ratingsServiceRequestHeaders: ' + JSON.stringify(ratingsServiceRequestHeaders));
 }
 
-const fs = require('fs');
 const axios = require('axios');
 const getProducts = async () => {
   try {
