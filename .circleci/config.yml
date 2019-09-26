@@ -57,6 +57,7 @@ jobs:
             image=${image_name}:$image_tag
             kustomize edit set image $image
             kustomize edit set namesuffix -- -$image_tag
+            kustomize edit add label version:$image_tag
             popd
             
             python3 ../bin/update_version.py -f $service_def -t $image_tag
