@@ -153,8 +153,13 @@ const getProducts = async () => {
 console.log('ORDER_SERVICE_ADDR: ' + process.env.ORDER_SERVICE_ADDR);
 var orderServiceAddr = process.env.ORDER_SERVICE_ADDR;
 if (orderServiceAddr === undefined) {
-  // default to "sidecar"
-  orderServiceAddr = 'http://127.0.0.1:9090';
+  // kubernetes
+  var port = process.env.SAVA_ORDER_SERVICE_PORT;
+  if (port === undefined) {
+    port = 9090;
+  }
+
+  orderServiceAddr = 'http://sava-order' + port;
 }
 console.log('orderServiceAddr: ' + orderServiceAddr);
 
