@@ -107,22 +107,22 @@ const getProducts = async () => {
   }
 }
 
-// payment service
-console.log('PAYMENT_SERVICE_ADDR: ' + process.env.PAYMENT_SERVICE_ADDR);
-var paymentServiceAddr = process.env.PAYMENT_SERVICE_ADDR;
-if (paymentServiceAddr === undefined) {
+// order service
+console.log('ORDER_SERVICE_ADDR: ' + process.env.ORDER_SERVICE_ADDR);
+var orderServiceAddr = process.env.ORDER_SERVICE_ADDR;
+if (orderServiceAddr === undefined) {
   // default to "sidecar"
-  paymentServiceAddr = 'http://127.0.0.1:9090';
+  orderServiceAddr = 'http://127.0.0.1:9090';
 }
-console.log('paymentServiceAddr: ' + paymentServiceAddr);
+console.log('orderServiceAddr: ' + orderServiceAddr);
 
-const paymentServiceURL = paymentServiceAddr + '/basket';
-console.log('paymentServiceURL: ' + paymentServiceURL);
+const orderServiceURL = orderServiceAddr + '/basket';
+console.log('orderServiceURL: ' + orderServiceURL);
 
-const paymentServiceRequestHeaders = {
+const orderServiceRequestHeaders = {
   'Content-type': 'application/json'
 };
-console.log('paymentServiceRequestHeaders: ' + JSON.stringify(paymentServiceRequestHeaders));
+console.log('orderServiceRequestHeaders: ' + JSON.stringify(orderServiceRequestHeaders));
 
 const postBasket = async (basket) => {
   try {
