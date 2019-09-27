@@ -43,7 +43,7 @@ Adds product star ratings.
 * `PRODUCT_SERVICE_ADDR`: the address (hostname and port) of the product service. (Default: http://sava-product:9070)
 * `BASE_PATH`: (Default: `\<LOCALE>\`)
 * `SHOW_RATINGS`: toggles whether product ratings are show (Default: false)
-* `RATINGS_SERVICE_ADDR`: the address (hostname and port) of the ratings service. (Default: http://sava-ratings:9085)
+* `RATINGS_SERVICE_ADDR`: the address (hostname and port) of the ratings service. (Default: http://sava-ratings:9080)
 * `PAYMENT_SERVICE_ADDR`: the address (hostname and port) of the product service. (Default: http://127.0.0.1:9090). Default assumes the payment service is running as a sidecar
 
 ## Running Locally using Docker
