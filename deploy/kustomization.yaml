@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+## specify here the resource you want to include
+resources:
+- deployment.yaml
+
+## labels to add to all resources
+commonLabels:
+  app: sava-cart
+
+## image tag
+images:
+- name: sava-cart
+  newName: vampio/sava-cart
+  newTag: 2.0.8
+
+configMapGenerator:
+- name: sava-cart-configmap
+  behavior: create
+  env: configMap.env
+- name: sava-order-configmap
+  behavior: create
+  env: ../sava-order/configMap.env
