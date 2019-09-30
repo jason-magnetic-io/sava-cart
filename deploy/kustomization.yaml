@@ -21,4 +21,4 @@ configMapGenerator:
   env: configMap.env
 - name: sava-order-configmap
   behavior: create
-  env: ../sava-order/configMap.env
+  env: sava-order-configMap.env
