@@ -116,7 +116,7 @@ if (orderServiceAddr === undefined) {
 }
 console.log('orderServiceAddr: ' + orderServiceAddr);
 
-const orderServiceURL = orderServiceAddr + '/basket';
+const orderServiceURL = orderServiceAddr + '/basket/';
 console.log('orderServiceURL: ' + orderServiceURL);
 
 const orderServiceRequestHeaders = {
