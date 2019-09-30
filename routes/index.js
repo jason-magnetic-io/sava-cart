@@ -127,7 +127,12 @@ console.log('orderServiceRequestHeaders: ' + JSON.stringify(orderServiceRequestH
 const postBasket = async (basket) => {
   let response = await axios.post(orderServiceURL, basket, { headers: orderServiceRequestHeaders });
   return response.data;
-}
+};
+
+const ready = async () => {
+  let response = await axios.get(orderServiceAddr + '/ready/');
+  return response.status;
+};
 
 // UA based device type lookup
 const uaParser = require('ua-parser-js');
@@ -254,6 +259,21 @@ router.post(BASE_PATH + 'mobile', (req, res, next) => {
       res.status(err.response.status).json(err.response.data);
     } else {
       res.status(418).json({message: "Something went wrong"});
+    }
+  });
+});
+
+router.get(BASE_PATH + 'ready', (req, res, next) => {
+  ready()
+  .then((status) => {
+    res.status(200).json('success');
+  })
+  .catch((err) => {
+    console.error('err.message: ' + err.message);
+    if (err.response) {
+      res.status(err.response.status).json('failure');
+    } else {
+      res.status(418).json('failure');
     }
   });
 });
