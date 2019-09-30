@@ -23,6 +23,13 @@ spec:
           requests:
             cpu: 100m
             memory: 256Mi
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /ready
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 15
         envFrom:
         - configMapRef:
             name: sava-cart-configmap
