@@ -125,13 +125,8 @@ const orderServiceRequestHeaders = {
 console.log('orderServiceRequestHeaders: ' + JSON.stringify(orderServiceRequestHeaders));
 
 const postBasket = async (basket) => {
-  try {
-    const response = await axios.post(orderServiceURL, basket, { headers: orderServiceRequestHeaders });
-    return response.data;
-  } catch (err) {
-    console.error(err);
-    return {'message': 'failed'}; 
-  }
+  let response = await axios.post(orderServiceURL, basket, { headers: orderServiceRequestHeaders });
+  return response.data;
 }
 
 // UA based device type lookup
@@ -232,7 +227,7 @@ router.get(BASE_PATH + 'cart/checkout', (req, res, next) => {
     requestUserAgent: ua,
     deviceType: getDeviceType(ua)
   };
-  console.log('basket: ' + JSON.stringify(basket));
+  console.log('cart/checkout: ' + JSON.stringify(basket));
   postBasket(basket);
 
   req.session.cart = {};
@@ -240,7 +235,7 @@ router.get(BASE_PATH + 'cart/checkout', (req, res, next) => {
 });
 
 router.post(BASE_PATH + 'mobile', (req, res, next) => {
-  console.log('/mobile: ' + JSON.stringify(req.body));
+  console.log('mobile: ' + JSON.stringify(req.body));
   var basket = req.body;
   if (typeof basket.requestUserAgent !== 'undefined') {
     var deviceType = getDeviceType(basket.requestUserAgent);
@@ -248,7 +243,19 @@ router.post(BASE_PATH + 'mobile', (req, res, next) => {
       basket['deviceType'] = deviceType;
     }
   }
-  res.json(postBasket(basket));
+
+  postBasket(basket)
+  .then((data) => {
+    res.status(200).json(data);
+  })
+  .catch((err) => {
+    console.error('err.message: ' + err.message);
+    if (err.response) {
+      res.status(err.response.status).json(err.response.data);
+    } else {
+      res.status(418).json({message: "Something went wrong"});
+    }
+  });
 });
 
 module.exports = {
