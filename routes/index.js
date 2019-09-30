@@ -126,7 +126,7 @@ console.log('orderServiceRequestHeaders: ' + JSON.stringify(orderServiceRequestH
 
 const postBasket = async (basket) => {
   try {
-    const response = await axios.post(orderServiceURL, basket, { headers: paymentServiceRequestHeaders });
+    const response = await axios.post(orderServiceURL, basket, { headers: orderServiceRequestHeaders });
     return response.data;
   } catch (err) {
     console.error(err);
